@@ -29,7 +29,7 @@ kubectl wait --for=condition=Ready nodes/dra-example-driver-cluster-worker --tim
 function verify-webhook {
   echo "Waiting for webhook to be available"
   while ! kubectl create --dry-run=server -f- <<-'EOF'
-    apiVersion: resource.k8s.io/v1beta1
+    apiVersion: resource.k8s.io/v1beta2
     kind: ResourceClaim
     metadata:
       name: webhook-test
@@ -37,7 +37,8 @@ function verify-webhook {
       devices:
         requests:
         - name: gpu
-          deviceClassName: gpu.example.com
+          exactly:
+            deviceClassName: gpu.example.com
 EOF
   do
     sleep 1
@@ -442,7 +443,7 @@ kubectl delete -f demo/gpu-test6.yaml --timeout=25s
 
 # Webhook should reject invalid resources
 if ! kubectl create --dry-run=server -f- <<'EOF' 2>&1 | grep -qF 'unknown time-slice interval'
-apiVersion: resource.k8s.io/v1beta1
+apiVersion: resource.k8s.io/v1beta2
 kind: ResourceClaim
 metadata:
   name: webhook-test
@@ -450,9 +451,11 @@ spec:
   devices:
     requests:
     - name: ts-gpu
-      deviceClassName: gpu.example.com
+      exactly:
+        deviceClassName: gpu.example.com
     - name: sp-gpu
-      deviceClassName: gpu.example.com
+      exactly:
+        deviceClassName: gpu.example.com
     config:
     - requests: ["ts-gpu"]
       opaque:
@@ -471,7 +474,7 @@ then
 fi
 
 if ! kubectl create --dry-run=server -f- <<'EOF' 2>&1 | grep -qF 'unknown time-slice interval'
-apiVersion: resource.k8s.io/v1beta1
+apiVersion: resource.k8s.io/v1beta2
 kind: ResourceClaimTemplate
 metadata:
   name: webhook-test
@@ -480,9 +483,11 @@ spec:
     devices:
       requests:
       - name: ts-gpu
-        deviceClassName: gpu.example.com
+        exactly:
+          deviceClassName: gpu.example.com
       - name: sp-gpu
-        deviceClassName: gpu.example.com
+        exactly:
+          deviceClassName: gpu.example.com
       config:
       - requests: ["ts-gpu"]
         opaque:

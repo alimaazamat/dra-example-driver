@@ -1,4 +1,9 @@
-# One pod, one container
+# One pod, one c  spec:
+    devices:
+      requests:
+      - name: gpu
+        exactly:
+          deviceClassName: gpu.example.comner
 # Asking for 2 distinct GPUs
 
 ---
@@ -8,7 +13,7 @@ metadata:
   name: gpu-test2
 
 ---
-apiVersion: resource.k8s.io/v1beta1
+apiVersion: resource.k8s.io/v1beta2
 kind: ResourceClaimTemplate
 metadata:
   namespace: gpu-test2
