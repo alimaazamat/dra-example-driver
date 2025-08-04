@@ -18,11 +18,14 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"maps"
+	"os"
 
-	resourceapi "k8s.io/api/resource/v1beta1"
+	resourceapi "k8s.io/api/resource/v1"
 	"k8s.io/apimachinery/pkg/types"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	coreclientset "k8s.io/client-go/kubernetes"
 	"k8s.io/dynamic-resource-allocation/kubeletplugin"
 	"k8s.io/dynamic-resource-allocation/resourceslice"
@@ -148,4 +151,13 @@ func (d *driver) unprepareResourceClaim(_ context.Context, claim kubeletplugin.N
 	}
 
 	return nil
+}
+
+func (d *driver) HandleError(ctx context.Context, err error, msg string) {
+	utilruntime.HandleErrorWithContext(ctx, err, msg)
+	if !errors.Is(err, kubeletplugin.ErrRecoverable) {
+		// Fatal error - exit the process
+		klog.FromContext(ctx).Error(err, "Fatal error encountered, exiting process")
+		os.Exit(1)
+	}
 }
