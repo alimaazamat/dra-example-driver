@@ -149,3 +149,7 @@ func (d *driver) unprepareResourceClaim(_ context.Context, claim kubeletplugin.N
 
 	return nil
 }
+
+func (d *driver) ErrorHandler(ctx context.Context, err error, msg string) {
+	klog.FromContext(ctx).Error(err, msg) // TODO: handle error properly
+}
